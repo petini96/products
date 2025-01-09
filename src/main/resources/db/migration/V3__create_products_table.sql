@@ -4,13 +4,12 @@ CREATE TABLE product (
     brand VARCHAR(255),
     original_price DECIMAL(10, 2) NOT NULL,
     discount_percentage DECIMAL(10, 2) NOT NULL,
+    discount_price DECIMAL(10, 2) NOT NULL,
     installment_price DECIMAL(10, 2) NOT NULL,
     installments_count INT NOT NULL,
-    shirt VARCHAR(255) NOT NULL,
-    model VARCHAR(255) NOT NULL,
-    photo TEXT,
-    league VARCHAR(255),
-    gender CHAR(1),
+    additional_info VARCHAR(255),
+    description VARCHAR(255),
+    link VARCHAR(255),
     product_type_id INT NOT NULL,
     product_category_id INT NOT NULL,
     FOREIGN KEY (product_type_id) REFERENCES product_type(id),
@@ -22,89 +21,27 @@ INSERT INTO product (
     brand,
     original_price,
     discount_percentage,
+    discount_price,
     installment_price,
     installments_count,
-    shirt,
-    model,
-    photo,
-    league,
-    gender,
+    additional_info,
+    description,
+    link,
     product_type_id,
     product_category_id
 )
 VALUES
     (
-        'Real Madrid Home Kit',
-        'Adidas',
-        299.99,
-        10.00,
-        269.99,
-        6,
-        'REAL MADRID',
-        'UNIFORME(2) 21/22',
-        'https://drive.google.com/file/d/1Xm9BhPz-2ZHkyBv4bu4nnA45iMGnoWS7/view',
-        'EUROPA',
-        'M',
-        1,
-        1
-    ),
-    (
-        'PSG Home Kit',
-        'Nike',
-        349.99,
-        15.00,
-        297.49,
-        8,
-        'PSG',
-        'UNIFORME(1) 21/22',
-        'https://drive.google.com/file/d/1SgR1vRRHP_eFviorr7iyqx18r97Z_mkf/view',
-        'FRANCÊS',
-        'M',
-        1,
-        1
-    ),
-    (
-        'Flamengo Home Kit',
-        'Adidas',
-        279.99,
-        5.00,
-        265.99,
-        4,
-        'FLAMENGO',
-        'UNIFORME(1) 22/23',
-        'https://drive.google.com/file/d/1R-Eqp-S9iTM524bgtd6eW0VGxzl6DtJv/view',
-        'BRASILEIRÃO',
-        'M',
-        1,
-        1
-    ),
-    (
-        'Palmeiras Home Kit',
-        'Puma',
-        259.99,
-        8.00,
-        239.19,
-        5,
-        'PALMEIRAS',
-        'UNIFORME(1) 22/23',
-        'https://drive.google.com/file/d/13UfbwWA50B8bqKBTL8QldGtKrTVWliot/view',
-        'BRASILEIRÃO',
-        'M',
-        1,
-        1
-    ),
-    (
-        'Argentina World Cup Kit',
-        'Adidas',
-        399.99,
-        20.00,
-        319.99,
-        10,
-        'ARGENTINA',
-        'UNIFORME(1) 21/22',
-        'https://drive.google.com/file/d/1yOMmw7EtnSUhZ3ai7Vnd-VoxfAUpX6Lq/view',
-        'SELEÇÃO',
-        'M',
-        1,
-        1
+        'iPhone 16 Pro - Brown', --name
+        'Apple', --brand
+        7.999, --original_price
+        10.0, --discount_percentage
+        6.99, --discount_price
+        720.0, --installment_price
+        12, --installments_count
+        'Garanta o seu agora mesmo!', --additional_info
+        'iPhone 16 Pro - Brown, design sofisticado e desempenho de ponta.', --description
+        'https://iphone.com/16v',
+        1, --product_type_id
+        1 --product_category_id
     );
