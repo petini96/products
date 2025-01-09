@@ -1,0 +1,80 @@
+services:
+  postgresql:
+    image: postgres:latest
+    container_name: mycommercedb
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: mycommercedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Campo_Grande
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    networks:
+      - default
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  redis:
+    image: redis:latest
+    container_name: redis-mycommerce
+    hostname: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes --loglevel debug --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    networks:
+      - default
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  rabbitmq:
+    image: 'rabbitmq:latest'
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=secret'
+      - 'RABBITMQ_DEFAULT_USER=myuser'
+    ports:
+      - '5672'
+  minio:
+    labels:
+      virtual.host: 'host.docker.internal/s3'
+      virtual.port: '9000'
+      virtual.tls-email:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    volumes:
+      - s3_data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/storage/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+
+volumes:
+  s3_data:
+  redis:
+    driver: local
+  postgresql:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
