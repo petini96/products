@@ -1,11 +1,15 @@
 package br.com.roboticsmind.products.service;
 
+import java.io.InputStream;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import java.io.InputStream;
+import io.minio.http.Method;
 
 @Service
 public class MinioService {
@@ -36,13 +40,27 @@ public class MinioService {
         }
     }
 
-    public void uploadToBucket(String bucketName, String objectName, InputStream stream, String contentType) throws Exception {
+    public String uploadToBucket(String bucketName, String objectName, InputStream stream, String contentType)
+            throws Exception {
         this.minioClient.putObject(PutObjectArgs.builder()
                 .bucket(bucketName)
                 .object(objectName)
                 .stream(stream, stream.available(), -1)
                 .contentType(contentType)
                 .build());
+
+        return this.getUrl(bucketName, objectName);
+    }
+
+    public String getUrl(String bucketName, String objectName)
+            throws Exception {
+        String url = this.minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                .method(Method.GET)
+                .bucket(bucketName)
+                .object(objectName)
+                .expiry(7 * 24 * 60 * 60)
+                .build());
+        return url;
     }
 
 }
