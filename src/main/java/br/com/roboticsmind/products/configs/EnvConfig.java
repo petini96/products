@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.config;
+package br.com.roboticsmind.products.configs;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;

@@ -1,7 +1,7 @@
 package br.com.roboticsmind.products.repositories;
 
 import br.com.roboticsmind.products.dto.product.ListAllProductsDTO;
-import br.com.roboticsmind.products.model.Product;
+import br.com.roboticsmind.products.models.Product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

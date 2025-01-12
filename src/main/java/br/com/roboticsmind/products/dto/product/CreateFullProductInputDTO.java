@@ -1,18 +1,15 @@
 package br.com.roboticsmind.products.dto.product;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-import br.com.roboticsmind.products.model.Product;
-import br.com.roboticsmind.products.model.ProductCategory;
-import br.com.roboticsmind.products.model.ProductPhoto;
-import br.com.roboticsmind.products.model.ProductType;
+import br.com.roboticsmind.products.models.Product;
+import br.com.roboticsmind.products.models.ProductCategory;
+import br.com.roboticsmind.products.models.ProductType;
 
 @lombok.Data
 @lombok.NoArgsConstructor
 public class CreateFullProductInputDTO {
 
-    private Long id;
     private String name;
     private String brand;
     private BigDecimal originalPrice;
@@ -27,7 +24,6 @@ public class CreateFullProductInputDTO {
     private ProductCategory productCategory;
 
     public CreateFullProductInputDTO(Product product){
-        this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand();
         this.originalPrice = product.getOriginalPrice();

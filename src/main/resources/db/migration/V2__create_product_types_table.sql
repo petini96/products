@@ -5,7 +5,7 @@ CREATE TABLE product_type (
 );
 
 INSERT INTO
-    product_type (id, name, description)
+    product_type (name, description)
 VALUES
-    (1,'Digital','Celular dentre outros'),
-    (5,'Outros','outros tipos de produtos');
+    ('Digital','Celular dentre outros'),
+    ('Outros','outros tipos de produtos');

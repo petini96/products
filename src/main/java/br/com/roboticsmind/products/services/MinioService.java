@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.service;
+package br.com.roboticsmind.products.services;
 
 import java.io.InputStream;
 

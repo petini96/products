@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.model;
+package br.com.roboticsmind.products.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -23,7 +23,7 @@ import lombok.Setter;
 @Entity
 public class ProductPhoto {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
