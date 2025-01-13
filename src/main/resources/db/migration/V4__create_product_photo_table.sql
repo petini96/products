@@ -12,28 +12,28 @@ INSERT INTO product_photo (product_id, url, file_type, file_size, created_at)
 VALUES 
 (
     1, 
-    'http://localhost:9001/api/v1/buckets/products/objects/download?preview=true&prefix=first.png&version_id=null',
+    'http://localhost:9000/products/first.png',
     'image/png', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9001/api/v1/buckets/products/objects/download?preview=true&prefix=second.jpg&version_id=null',
+    'http://localhost:9000/products/second.jpg',
     'image/jpg', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9001/api/v1/buckets/products/objects/download?preview=true&prefix=third.webp&version_id=null',
+    'http://localhost:9000/products/third.webp',
     'image/jpeg', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9001/api/v1/buckets/products/objects/download?preview=true&prefix=fourth.jpg&version_id=null',
+    'http://localhost:9000/products/fourth.jpg',
     'image/webp', 
     204800, 
     CURRENT_TIMESTAMP
