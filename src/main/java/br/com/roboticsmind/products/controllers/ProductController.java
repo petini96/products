@@ -52,4 +52,5 @@ public class ProductController {
 
         return this.iProductService.createProduct(createFullProductInputDTO, photos);
     }
+
 }

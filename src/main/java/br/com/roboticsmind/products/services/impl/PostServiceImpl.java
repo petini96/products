@@ -2,6 +2,7 @@ package br.com.roboticsmind.products.services.impl;
 
 import br.com.roboticsmind.products.dto.post.CreatePostDTO;
 import br.com.roboticsmind.products.dto.post.ListPostDTO;
+import br.com.roboticsmind.products.exceptions.ProductNotFoundException;
 import br.com.roboticsmind.products.models.Post;
 import br.com.roboticsmind.products.repositories.PostRepository;
 import br.com.roboticsmind.products.services.IPostService;
@@ -10,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 @Service
 public class PostServiceImpl implements IPostService {
@@ -45,9 +48,12 @@ public class PostServiceImpl implements IPostService {
         }
     }
 
+
     @Override
     public Post getPost(Long postId) {
-        return this.postRepository.findById(postId).get();
+        Optional<Post> optionalPost = this.postRepository.findById(postId);
+        if (!optionalPost.isPresent()) throw new ProductNotFoundException(postId);
+        return optionalPost.get();
     }
 
     @Override
