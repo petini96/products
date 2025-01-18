@@ -76,7 +76,25 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public Page<ListAllProductsDTO> listProducts(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return this.productRepository.findAllProductsDTO(pageable);
+        Page<ListAllProductsDTO> allProductsDTO = this.productRepository.findAllProductsDTO(pageable);
+        allProductsDTO.map(productDTO -> {
+            System.out.println("Product Description: " + productDTO.getDescription());
+            List<ProductPhoto> productPhotos = productPhotoRepository.findByProductId(productDTO.getId());
+            if (productPhotos != null) {
+                productPhotos.forEach(photo -> {
+                    System.out.println("Photo URL: " + photo.getUrl());
+                    System.out.println("Photo File Type: " + photo.getFileType());
+                    System.out.println("Photo File Size: " + photo.getFileSize());
+                });
+                productDTO.setPhotos(productPhotos);
+            } else {
+                System.out.println("No photos available for this product.");
+            }
+
+            return productDTO;
+        });
+
+        return allProductsDTO;
     }
 
 }

@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
- 
+
 public interface ProductRepository  extends JpaRepository<Product, Long> {
-    @Query("SELECT new br.com.roboticsmind.products.dto.product.ListAllProductsDTO(p.id, p.name) FROM Product p")
+    @Query("SELECT new br.com.roboticsmind.products.dto.product.ListAllProductsDTO(p.id, p.name, p.description) FROM Product p")
     Page<ListAllProductsDTO> findAllProductsDTO(Pageable pageable);
 
     List<Product> findByName(String name);
