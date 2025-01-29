@@ -12,31 +12,37 @@ INSERT INTO product_photo (product_id, url, file_type, file_size, created_at)
 VALUES 
 (
     1, 
-    'http://localhost:9000/products/first.png',
+    'http://localhost:9000/products/phone1.avif',
     'image/png', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9000/products/second.jpg',
+    'http://localhost:9000/products/phone2.jpg',
     'image/jpg', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9000/products/third.webp',
+    'http://localhost:9000/products/phone3.webp',
     'image/jpeg', 
     204800, 
     CURRENT_TIMESTAMP
 ),
 (
     1, 
-    'http://localhost:9000/products/fourth.jpg',
+    'http://localhost:9000/products/phone4.jpg',
     'image/webp', 
     204800, 
     CURRENT_TIMESTAMP
+),
+(
+    1,
+    'http://localhost:9000/products/phone5.png',
+    'image/webp',
+    204800,
+    CURRENT_TIMESTAMP
 );
-
 
