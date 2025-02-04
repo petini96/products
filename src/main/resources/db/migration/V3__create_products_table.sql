@@ -32,16 +32,58 @@ INSERT INTO product (
 )
 VALUES
     (
-        'iPhone 16 Pro - Brown', --name
-        'Apple', --brand
-        7.999, --original_price
+        'Pão de mel', --name
+        'Doceria', --brand
+        10.00, --original_price
         10.0, --discount_percentage
-        6.99, --discount_price
-        720.0, --installment_price
-        12, --installments_count
-        'Garanta o seu agora mesmo!', --additional_info
-        'iPhone 16 Pro - Brown, design sofisticado e desempenho de ponta.', --description
-        'https://iphone.com/16v',
+        0.99, --discount_price
+        10.00, --installment_price
+        1, --installments_count
+        'Produzido em casa', --additional_info
+        'Maravilhoso pão de mel totalmente caseiro.', --description
+        'https://doceria.roboticsmind.com.br/pao-de-mel',
         1, --product_type_id
+        1 --product_category_id
+    ),
+    (
+        'Bolo Gelado', --name
+        'Doceria', --brand
+        8.00, --original_price
+        8.0, --discount_percentage
+        0.99, --discount_price
+        10.00, --installment_price
+        1, --installments_count
+        'Produzido em casa', --additional_info
+        'Maravilhoso bolo gelado.', --description
+        'https://doceria.roboticsmind.com.br/bolo-congelado',
+        2, --product_type_id
+        1 --product_category_id
+    ),
+    (
+        'Brownie', --name
+        'Doceria', --brand
+        10.00, --original_price
+        10.0, --discount_percentage
+        0.99, --discount_price
+        10.00, --installment_price
+        1, --installments_count
+        'Produzido em casa', --additional_info
+        'Maravilhoso brownie.', --description
+        'https://doceria.roboticsmind.com.br/brownie',
+        3, --product_type_id
+        1 --product_category_id
+    ),
+    (
+        'Brigadeiro', --name
+        'Doceria', --brand
+        12.00, --original_price
+        12.0, --discount_percentage
+        0.99, --discount_price
+        12.00, --installment_price
+        1, --installments_count
+        'Produzido em casa', --additional_info
+        'Maravilhoso brownie.', --description
+        'https://doceria.roboticsmind.com.br/brownie',
+        3, --product_type_id
         1 --product_category_id
     );

@@ -8,5 +8,5 @@ CREATE TABLE Post (
 
 INSERT INTO Post (media, title, description, "order")
 VALUES
-    ('http://localhost:9000/posts/post1.jpg', 'Post Title 1', 'Description for the first post.', 1),
-    ('http://localhost:9000/posts/post2.jpg', 'Post Title 2', 'Description for the second post.', 2);
+    ('http://localhost:9000/posts/post1.svg', 'Post Title 1', 'Description for the first post.', 1),
+    ('http://localhost:9000/posts/post2.svg', 'Post Title 2', 'Description for the second post.', 2);

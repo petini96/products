@@ -7,5 +7,5 @@ CREATE TABLE product_category (
 INSERT INTO
     product_category (name, description)
 VALUES
-    ('Smartphones', 'celulares de qualidade'),
-    ('Outros', 'outros tipos de produtos');
+    ('Comum', 'doces do dia a dia'),
+    ('Eventual', 'para datas específicas');

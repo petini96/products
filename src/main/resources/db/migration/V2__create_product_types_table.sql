@@ -7,5 +7,7 @@ CREATE TABLE product_type (
 INSERT INTO
     product_type (name, description)
 VALUES
-    ('Digital','Celular dentre outros'),
-    ('Outros','outros tipos de produtos');
+    ('Pão de mel','Delicioso pão de mel'),
+    ('Bolo de congelado','outros tipos de produtos'),
+    ('Brownie','Delicioso brownie'),
+    ('Brigadeiro','Delicioso brigadeiro');
