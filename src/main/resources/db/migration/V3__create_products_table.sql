@@ -40,7 +40,7 @@ VALUES
         10.00, --installment_price
         1, --installments_count
         'Produzido em casa', --additional_info
-        'Maravilhoso pão de mel totalmente caseiro.', --description
+        'Feito com ingredientes selecionados e um toque especial de carinho, nosso pão de mel caseiro é macio, aromático e irresistivelmente saboroso. 🍯🍫', --description
         'https://doceria.roboticsmind.com.br/pao-de-mel',
         1, --product_type_id
         1 --product_category_id
@@ -54,7 +54,7 @@ VALUES
         10.00, --installment_price
         1, --installments_count
         'Produzido em casa', --additional_info
-        'Maravilhoso bolo gelado.', --description
+        'Feito com ingredientes selecionados e um toque especial de carinho, nosso bolo gelado caseiro é fofinho, refrescante e irresistivelmente delicioso. ❄️🍰', --description
         'https://doceria.roboticsmind.com.br/bolo-congelado',
         2, --product_type_id
         1 --product_category_id
@@ -68,7 +68,7 @@ VALUES
         10.00, --installment_price
         1, --installments_count
         'Produzido em casa', --additional_info
-        'Maravilhoso brownie.', --description
+        'Feito com ingredientes selecionados e um toque especial de carinho, nosso brownie caseiro é denso, chocolatudo e simplesmente viciante. 🍫💖', --description
         'https://doceria.roboticsmind.com.br/brownie',
         3, --product_type_id
         1 --product_category_id
@@ -82,7 +82,7 @@ VALUES
         12.00, --installment_price
         1, --installments_count
         'Produzido em casa', --additional_info
-        'Maravilhoso brownie.', --description
+        'Feito com ingredientes selecionados e um toque especial de carinho, nosso brigadeiro caseiro é macio, cremoso e cheio de sabor. 🎉🍬', --description
         'https://doceria.roboticsmind.com.br/brownie',
         3, --product_type_id
         1 --product_category_id
