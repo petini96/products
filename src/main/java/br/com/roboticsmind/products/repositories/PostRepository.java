@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("SELECT new br.com.roboticsmind.products.dto.post.ListPostDTO(p.id, p.media, p.title, p.description, p.order ) FROM Post p")
+    @Query("SELECT new br.com.roboticsmind.products.dto.post.ListPostDTO(p.id, p.media, p.mediaMobile, p.title, p.description, p.order ) FROM Post p")
     Page<ListPostDTO> findAllPostDTO(Pageable pageable);
 
     List<Post> findByTitle(String title);

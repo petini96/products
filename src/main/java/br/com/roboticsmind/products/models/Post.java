@@ -23,6 +23,9 @@ public class Post {
     @Column(nullable = false)
     private String media;
 
+    @Column(nullable = false, name = "media_mobile")
+    private String mediaMobile;
+
     @Column(nullable = false)
     private String title;
 
