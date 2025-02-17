@@ -27,7 +27,7 @@ public class PostServiceImpl implements IPostService {
     private MinioService minioService;
 
     @Override
-    public Post createPost(CreatePostDTO createPostDTO, MultipartFile photo) {
+    public Post createPost(CreatePostDTO createPostDTO, MultipartFile photo, MultipartFile photoMobile) {
         try {
             Post newPost = new Post();
             newPost.setTitle(createPostDTO.getTitle());
@@ -40,10 +40,17 @@ public class PostServiceImpl implements IPostService {
                 newPost.setMedia(photoUrl);
             }
 
+            String photoMobileName = photoMobile.getOriginalFilename();
+            try (InputStream photoStream = photoMobile.getInputStream()) {
+                String photoUrl = this.minioService.uploadToBucket("posts", photoMobileName, photoStream, photoMobile.getContentType());
+                newPost.setMediaMobile(photoUrl);
+            }
+
             this.postRepository.save(newPost);
 
             return newPost;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("Erro ao salvar o post e as imagens", e);
         }
     }

@@ -38,11 +38,13 @@ public class PostController {
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public Post createPost(
             @RequestPart("post") CreatePostDTO createPostDTO,
-            @RequestPart("photo") MultipartFile photo) {
+            @RequestPart("photo") MultipartFile photo,
+            @RequestPart("photo_mobile") MultipartFile photoMobile) {
 
         System.out.println("Recebendo post: " + createPostDTO);
         System.out.println("Recebendo photo: " + photo);
+        System.out.println("Recebendo photoMobile: " + photoMobile);
 
-        return this.iPostService.createPost(createPostDTO, photo);
+        return this.iPostService.createPost(createPostDTO, photo, photoMobile);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IPostService {
-    public Post createPost(CreatePostDTO createPostDTO, MultipartFile photo);
+    public Post createPost(CreatePostDTO createPostDTO, MultipartFile photo, MultipartFile photoMobile);
     public Post getPost(Long postId);
     public Page<ListPostDTO> listPosts(int page, int size);
 }
