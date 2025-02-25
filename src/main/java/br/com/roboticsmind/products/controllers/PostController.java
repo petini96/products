@@ -1,19 +1,26 @@
 package br.com.roboticsmind.products.controllers;
 
-import br.com.roboticsmind.products.dto.post.CreatePostDTO;
-import br.com.roboticsmind.products.dto.post.ListPostDTO;
-import br.com.roboticsmind.products.dto.product.ListAllProductsDTO;
-import br.com.roboticsmind.products.models.Post;
-import br.com.roboticsmind.products.models.Product;
-import br.com.roboticsmind.products.services.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import br.com.roboticsmind.products.annotations.LogExecutionTime;
+import br.com.roboticsmind.products.dto.post.CreatePostDTO;
+import br.com.roboticsmind.products.dto.post.ListPostDTO;
+import br.com.roboticsmind.products.models.Post;
+import br.com.roboticsmind.products.services.IPostService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @SpringBootApplication
 @RequestMapping("/posts")
@@ -26,24 +33,26 @@ public class PostController {
     public Page<ListPostDTO> listPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        PageRequest pageable = PageRequest.of(page, size);
+        log.info("Listando posts - Página: {}, Tamanho: {}", page, size);
         return this.iPostService.listPosts(page, size);
     }
 
     @GetMapping("/{postId}")
     public Post getPost(@PathVariable Long postId) {
+        log.info("Buscando post com ID: {}", postId);
         return this.iPostService.getPost(postId);
     }
 
+    @LogExecutionTime
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public Post createPost(
-            @RequestPart("post") CreatePostDTO createPostDTO,
-            @RequestPart("photo") MultipartFile photo,
-            @RequestPart("photo_mobile") MultipartFile photoMobile) {
+            @Valid @RequestPart("post") CreatePostDTO createPostDTO,
+            @Valid @RequestPart("photo") MultipartFile photo,
+            @Valid @RequestPart("photo_mobile") MultipartFile photoMobile) {
 
-        System.out.println("Recebendo post: " + createPostDTO);
-        System.out.println("Recebendo photo: " + photo);
-        System.out.println("Recebendo photoMobile: " + photoMobile);
+        log.info("Recebendo post: {}", createPostDTO);
+        log.info("Recebendo photo: Nome: {}, Tamanho: {} bytes", photo.getOriginalFilename(), photo.getSize());
+        log.info("Recebendo photoMobile: Nome: {}, Tamanho: {} bytes", photoMobile.getOriginalFilename(), photoMobile.getSize());
 
         return this.iPostService.createPost(createPostDTO, photo, photoMobile);
     }
