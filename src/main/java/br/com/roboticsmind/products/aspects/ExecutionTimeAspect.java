@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Aspect
@@ -18,8 +19,7 @@ public class ExecutionTimeAspect {
         Object result = joinPoint.proceed();
 
         long duration = (System.nanoTime() - start) / 1_000_000;
-        log.info("Tempo de execução do método {}: {} ms", joinPoint.getSignature(), duration);
-
+        log.info("@ExecutionTimeAspect - Execution time {}: {} ms", joinPoint.getSignature(), duration);
         return result;
     }
 }

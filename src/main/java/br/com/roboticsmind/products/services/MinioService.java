@@ -5,10 +5,12 @@ import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 
 @Service
@@ -40,8 +42,16 @@ public class MinioService {
         }
     }
 
+    private void ensureBucketExists(String bucketName) throws Exception {
+        boolean exists = this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if (!exists) {
+            this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+        }
+    }
+
     public String uploadToBucket(String bucketName, String objectName, InputStream stream, String contentType)
             throws Exception {
+        this.ensureBucketExists(bucketName);
         this.minioClient.putObject(PutObjectArgs.builder()
                 .bucket(bucketName)
                 .object(objectName)
@@ -50,6 +60,10 @@ public class MinioService {
                 .build());
 
         return this.getUrl(bucketName, objectName);
+    }
+
+    public void deleteObject(String bucketName, String objectName) throws Exception {
+        this.minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(objectName).build());
     }
 
     public String getUrl(String bucketName, String objectName)

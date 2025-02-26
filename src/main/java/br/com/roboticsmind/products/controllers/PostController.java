@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import br.com.roboticsmind.products.annotations.LogExecutionTime;
 import br.com.roboticsmind.products.dto.post.CreatePostDTO;
 import br.com.roboticsmind.products.dto.post.ListPostDTO;
@@ -29,17 +30,17 @@ public class PostController {
     @Autowired
     private IPostService iPostService;
 
+    @LogExecutionTime
     @GetMapping
     public Page<ListPostDTO> listPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        log.info("Listando posts - Página: {}, Tamanho: {}", page, size);
         return this.iPostService.listPosts(page, size);
     }
 
+    @LogExecutionTime
     @GetMapping("/{postId}")
     public Post getPost(@PathVariable Long postId) {
-        log.info("Buscando post com ID: {}", postId);
         return this.iPostService.getPost(postId);
     }
 
@@ -49,11 +50,6 @@ public class PostController {
             @Valid @RequestPart("post") CreatePostDTO createPostDTO,
             @Valid @RequestPart("photo") MultipartFile photo,
             @Valid @RequestPart("photo_mobile") MultipartFile photoMobile) {
-
-        log.info("Recebendo post: {}", createPostDTO);
-        log.info("Recebendo photo: Nome: {}, Tamanho: {} bytes", photo.getOriginalFilename(), photo.getSize());
-        log.info("Recebendo photoMobile: Nome: {}, Tamanho: {} bytes", photoMobile.getOriginalFilename(), photoMobile.getSize());
-
         return this.iPostService.createPost(createPostDTO, photo, photoMobile);
     }
 }
