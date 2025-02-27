@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +24,8 @@ public class FileUploadHandler {
     private final IStorageService storageService;
     private final String bucketName;
 
-    public FileUploadHandler(IStorageService storageService, @Value("${storage.bucket.posts:posts}") String bucketName) {
+    @Autowired
+    public FileUploadHandler(@Qualifier("minioService") IStorageService storageService, @Value("${storage.bucket.posts:posts}") String bucketName) {
         this.storageService = storageService;
         this.bucketName = bucketName;
     }
