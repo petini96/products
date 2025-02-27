@@ -1,7 +1,8 @@
-package br.com.roboticsmind.products.services;
+package br.com.roboticsmind.products.services.impl;
 
 import java.io.InputStream;
 
+import br.com.roboticsmind.products.services.IStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 
 @Service
-public class MinioService {
+public class MinioService implements IStorageService {
 
     private final MinioClient minioClient;
 
@@ -26,6 +27,31 @@ public class MinioService {
                 .endpoint(url)
                 .credentials(accessKey, secretKey)
                 .build();
+    }
+
+    @Override
+    public String uploadFile(String bucket, String fileName, InputStream stream, String contentType) {
+        try {
+            this.ensureBucketExists(bucket);
+            this.minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(fileName)
+                    .stream(stream, stream.available(), -1)
+                    .contentType(contentType)
+                    .build());
+            return this.getUrl(bucket, fileName);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload file: " + fileName, e);
+        }
+    }
+
+    @Override
+    public void deleteFile(String bucket, String fileName) {
+        try {
+            this.minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete file: " + fileName, e);
+        }
     }
 
     public boolean makeBucket(String bucket) {

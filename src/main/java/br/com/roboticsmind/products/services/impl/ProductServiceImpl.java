@@ -6,7 +6,6 @@ import br.com.roboticsmind.products.models.Product;
 import br.com.roboticsmind.products.models.ProductPhoto;
 import br.com.roboticsmind.products.repositories.ProductPhotoRepository;
 import br.com.roboticsmind.products.repositories.ProductRepository;
-import br.com.roboticsmind.products.services.MinioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
