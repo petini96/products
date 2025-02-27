@@ -14,6 +14,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<ListPostDTO> findAllPostDTO(Pageable pageable);
 
     List<Post> findByTitle(String title);
-
-    Post findById(long id);
 }

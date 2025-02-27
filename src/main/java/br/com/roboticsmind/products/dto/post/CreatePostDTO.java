@@ -4,6 +4,7 @@ import br.com.roboticsmind.products.models.Post;
 
 @lombok.Data
 @lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class CreatePostDTO {
     private String title;
     private String description;

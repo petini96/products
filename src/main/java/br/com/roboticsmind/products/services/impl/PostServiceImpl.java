@@ -16,6 +16,7 @@ import br.com.roboticsmind.products.services.impl.helper.PostFactory;
 import br.com.roboticsmind.products.services.impl.helper.PostValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,37 +33,31 @@ public class PostServiceImpl implements IPostService {
     private final FileUploadHandler fileUploadHandler;
     private final String bucketName;
 
+    @Autowired
     public PostServiceImpl(PostRepository postRepository,
-                           IStorageService storageService,
+                           FileUploadHandler fileUploadHandler,
                            @Value("${storage.bucket.posts:posts}") String bucketName) {
         this.postRepository = postRepository;
-        this.fileUploadHandler = new FileUploadHandler(storageService, bucketName);
+        this.fileUploadHandler = fileUploadHandler;
         this.bucketName = bucketName;
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Post createPost(CreatePostDTO createPostDTO, MultipartFile photo, MultipartFile photoMobile) {
-        PostValidator.validate(createPostDTO, photo, photoMobile);
-        Post post = PostFactory.createPost(createPostDTO);
+    public Post createPost(CreatePostDTO dto, MultipartFile photo, MultipartFile photoMobile) throws PostSaveException {
         List<String> uploadedFiles = new ArrayList<>();
-
         try {
-            String mainPhotoUrl = fileUploadHandler.uploadFile(photo, uploadedFiles);
-            String mobilePhotoUrl = fileUploadHandler.uploadFile(photoMobile, uploadedFiles);
+            String photoUrl = fileUploadHandler.uploadFile(photo, uploadedFiles);
+            String mobileUrl = fileUploadHandler.uploadFile(photoMobile, uploadedFiles);
 
-            post.setMedia(mainPhotoUrl);
-            post.setMediaMobile(mobilePhotoUrl);
+            Post post = new Post();
+            post.setTitle(dto.getTitle());
+            post.setDescription(dto.getDescription());
+            post.setMedia(photoUrl);
+            post.setMediaMobile(mobileUrl);
 
-            Post savedPost = postRepository.save(post);
-            logger.info("Post created successfully with ID: {} and title: {}", savedPost.getId(), savedPost.getTitle());
-            return savedPost;
+            return postRepository.save(post);
         } catch (FileUploadException e) {
             fileUploadHandler.cleanupFiles(uploadedFiles);
-            throw e;
-        } catch (Exception e) {
-            fileUploadHandler.cleanupFiles(uploadedFiles);
-            throw new PostSaveException("Failed to save post with title: " + createPostDTO.getTitle(), e);
+            throw new PostSaveException("Failed to save post due to file upload error", e);
         }
     }
 
