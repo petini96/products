@@ -2,10 +2,10 @@ package br.com.roboticsmind.products.services.impl;
 
 import java.io.InputStream;
 
-import br.com.roboticsmind.products.services.IStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import br.com.roboticsmind.products.services.IStorageService;
 import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
