@@ -106,7 +106,7 @@ public class S3ServiceImpl implements IStorageService {
     private String getUrl(String bucketName, String objectName) {
         try {
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofDays(7)) // URL válida por 7 dias
+                    .signatureDuration(Duration.ofDays(7))
                     .getObjectRequest(getObjectRequest -> getObjectRequest
                             .bucket(bucketName)
                             .key(objectName))
