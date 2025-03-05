@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.services.impl;
+package br.com.roboticsmind.products.services.impl.storage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 import br.com.roboticsmind.products.services.IStorageService;
 
 @Service
-public class LocalFileSystemService implements IStorageService {
+public class LocalFileSystemServiceImpl implements IStorageService {
 
     private final String basePath;
 
-    public LocalFileSystemService(@Value("${storage.local.path:./uploads}") String basePath) {
+    public LocalFileSystemServiceImpl(@Value("${storage.local.path:./uploads}") String basePath) {
         this.basePath = basePath;
         ensureDirectoryExists();
     }

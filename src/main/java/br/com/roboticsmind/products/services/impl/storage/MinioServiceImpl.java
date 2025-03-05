@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.services.impl;
+package br.com.roboticsmind.products.services.impl.storage;
 
 import java.io.InputStream;
 
@@ -15,11 +15,11 @@ import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 
 @Service
-public class MinioService implements IStorageService {
+public class MinioServiceImpl implements IStorageService {
 
     private final MinioClient minioClient;
 
-    public MinioService(
+    public MinioServiceImpl(
             @Value("${minio.url}") String url,
             @Value("${minio.access-key}") String accessKey,
             @Value("${minio.secret-key}") String secretKey) {

@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.services.impl;
+package br.com.roboticsmind.products.services.impl.post;
 
 import java.util.ArrayList;
 import java.util.List;

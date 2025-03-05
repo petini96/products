@@ -1,4 +1,4 @@
-package br.com.roboticsmind.products.services.impl;
+package br.com.roboticsmind.products.services.impl.storage;
 
 import java.io.InputStream;
 import java.net.URI;

@@ -25,7 +25,7 @@ public class FileUploadHandler {
     private final String bucketName;
 
     @Autowired
-    public FileUploadHandler(@Qualifier("minioService") IStorageService storageService, @Value("${storage.bucket.posts:posts}") String bucketName) {
+    public FileUploadHandler(@Qualifier("s3ServiceImpl") IStorageService storageService, @Value("${storage.bucket.posts:posts}") String bucketName) {
         this.storageService = storageService;
         this.bucketName = bucketName;
     }

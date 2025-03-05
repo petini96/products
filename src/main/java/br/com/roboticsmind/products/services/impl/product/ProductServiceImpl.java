@@ -1,8 +1,9 @@
-package br.com.roboticsmind.products.services.impl;
+package br.com.roboticsmind.products.services.impl.product;
 
 import java.io.InputStream;
 import java.util.List;
 
+import br.com.roboticsmind.products.services.impl.storage.MinioServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,7 @@ public class ProductServiceImpl implements IProductService {
     private ProductPhotoRepository productPhotoRepository;
 
     @Autowired
-    private MinioService minioService;
+    private MinioServiceImpl minioService;
 
     @Override
     public Product createProduct(CreateFullProductInputDTO createFullProductInputDTO, List<MultipartFile> photos) {
