@@ -17,17 +17,28 @@ import br.com.roboticsmind.products.services.IStorageService;
 public class LocalFileSystemServiceImpl implements IStorageService {
 
     private final String basePath;
+    private final String bucket;
+    private final String postsPrefix;
+    private final String productsPrefix;
 
-    public LocalFileSystemServiceImpl(@Value("${storage.local.path:./uploads}") String basePath) {
+    public LocalFileSystemServiceImpl(
+            @Value("${storage.local.path:./uploads}") String basePath,
+            @Value("${storage.bucket:mycommerce-roboticsmind-prod-media}") String bucket,
+            @Value("${storage.prefix.posts:posts/}") String postsPrefix,
+            @Value("${storage.prefix.products:products/}") String productsPrefix) {
         this.basePath = basePath;
+        this.bucket = bucket;
+        this.postsPrefix = postsPrefix.endsWith("/") ? postsPrefix : postsPrefix + "/";
+        this.productsPrefix = productsPrefix.endsWith("/") ? productsPrefix : productsPrefix + "/";
         ensureDirectoryExists();
     }
 
     @Override
     public String uploadFile(String bucket, String fileName, InputStream stream, String contentType) {
         try {
-
-            String fullPath = Paths.get(basePath, bucket, fileName).toString();
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullPath = Paths.get(basePath, effectiveBucket, prefix, fileName).toString();
             Path path = Paths.get(fullPath).getParent();
 
             if (path != null) {
@@ -42,7 +53,7 @@ public class LocalFileSystemServiceImpl implements IStorageService {
                 }
             }
 
-            return Paths.get(bucket, fileName).toString();
+            return Paths.get(effectiveBucket, prefix, fileName).toString();
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file: " + fileName, e);
         }
@@ -51,7 +62,9 @@ public class LocalFileSystemServiceImpl implements IStorageService {
     @Override
     public void deleteFile(String bucket, String fileName) {
         try {
-            String fullPath = Paths.get(basePath, bucket, fileName).toString();
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullPath = Paths.get(basePath, effectiveBucket, prefix, fileName).toString();
             File file = new File(fullPath);
             if (file.exists()) {
                 if (!file.delete()) {
@@ -69,5 +82,14 @@ public class LocalFileSystemServiceImpl implements IStorageService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create base directory: " + basePath, e);
         }
+    }
+
+    private String determinePrefix(String fileName) {
+        if (fileName.startsWith("post-") || fileName.contains("/posts/")) {
+            return postsPrefix;
+        } else if (fileName.startsWith("product-") || fileName.contains("/products/")) {
+            return productsPrefix;
+        }
+        return "";
     }
 }

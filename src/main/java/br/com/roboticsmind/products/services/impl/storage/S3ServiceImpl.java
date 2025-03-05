@@ -28,52 +28,59 @@ public class S3ServiceImpl implements IStorageService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final String region;
+    private final String bucket;
+    private final String postsPrefix;
+    private final String productsPrefix;
 
     public S3ServiceImpl(
             @Value("${aws.s3.url:}") String url,
             @Value("${aws.access-key}") String accessKey,
             @Value("${aws.secret-key}") String secretKey,
-            @Value("${aws.region}") String region) {
+            @Value("${aws.region}") String region,
+            @Value("${storage.bucket:mycommerce-roboticsmind-prod-media}") String bucket,
+            @Value("${storage.prefix.posts:posts/}") String postsPrefix,
+            @Value("${storage.prefix.products:products/}") String productsPrefix) {
         this.region = region;
+        this.bucket = bucket;
+        this.postsPrefix = postsPrefix.endsWith("/") ? postsPrefix : postsPrefix + "/";
+        this.productsPrefix = productsPrefix.endsWith("/") ? productsPrefix : productsPrefix + "/";
 
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
         StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(awsCreds);
 
-        S3ClientBuilder s3ClientBuilder = S3Client.builder();
-                s3ClientBuilder = S3Client.builder()
+        S3ClientBuilder s3ClientBuilder = S3Client.builder()
                 .credentialsProvider(credentialsProvider)
                 .region(Region.of(region));
-
         if (!url.isEmpty()) {
             s3ClientBuilder.endpointOverride(URI.create(url));
         }
-
         this.s3Client = s3ClientBuilder.build();
 
         S3Presigner.Builder presignerBuilder = S3Presigner.builder()
                 .credentialsProvider(credentialsProvider)
                 .region(Region.of(region));
-
         if (!url.isEmpty()) {
             presignerBuilder.endpointOverride(URI.create(url));
         }
-
         this.s3Presigner = presignerBuilder.build();
     }
 
     @Override
     public String uploadFile(String bucket, String fileName, InputStream stream, String contentType) {
         try {
-            ensureBucketExists(bucket);
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullKey = prefix + fileName;
+            ensureBucketExists(effectiveBucket);
             s3Client.putObject(
                     PutObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(fileName)
+                            .bucket(effectiveBucket)
+                            .key(fullKey)
                             .contentType(contentType)
                             .build(),
                     RequestBody.fromInputStream(stream, stream.available())
             );
-            return getUrl(bucket, fileName);
+            return getUrl(effectiveBucket, fullKey);
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file: " + fileName, e);
         }
@@ -82,10 +89,13 @@ public class S3ServiceImpl implements IStorageService {
     @Override
     public void deleteFile(String bucket, String fileName) {
         try {
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullKey = prefix + fileName;
             s3Client.deleteObject(
                     DeleteObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(fileName)
+                            .bucket(effectiveBucket)
+                            .key(fullKey)
                             .build()
             );
         } catch (Exception e) {
@@ -116,5 +126,14 @@ public class S3ServiceImpl implements IStorageService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate presigned URL for: " + objectName, e);
         }
+    }
+
+    private String determinePrefix(String fileName) {
+        if (fileName.startsWith("post-") || fileName.contains("/posts/")) {
+            return postsPrefix;
+        } else if (fileName.startsWith("product-") || fileName.contains("/products/")) {
+            return productsPrefix;
+        }
+        return "";
     }
 }

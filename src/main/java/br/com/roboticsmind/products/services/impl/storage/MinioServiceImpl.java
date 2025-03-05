@@ -18,28 +18,40 @@ import io.minio.http.Method;
 public class MinioServiceImpl implements IStorageService {
 
     private final MinioClient minioClient;
+    private final String bucket;
+    private final String postsPrefix;
+    private final String productsPrefix;
 
     public MinioServiceImpl(
             @Value("${minio.url}") String url,
             @Value("${minio.access-key}") String accessKey,
-            @Value("${minio.secret-key}") String secretKey) {
+            @Value("${minio.secret-key}") String secretKey,
+            @Value("${storage.bucket:mycommerce-roboticsmind-prod-media}") String bucket,
+            @Value("${storage.prefix.posts:posts/}") String postsPrefix,
+            @Value("${storage.prefix.products:products/}") String productsPrefix) {
         this.minioClient = MinioClient.builder()
                 .endpoint(url)
                 .credentials(accessKey, secretKey)
                 .build();
+        this.bucket = bucket;
+        this.postsPrefix = postsPrefix.endsWith("/") ? postsPrefix : postsPrefix + "/";
+        this.productsPrefix = productsPrefix.endsWith("/") ? productsPrefix : productsPrefix + "/";
     }
 
     @Override
     public String uploadFile(String bucket, String fileName, InputStream stream, String contentType) {
         try {
-            this.ensureBucketExists(bucket);
-            this.minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(fileName)
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullObjectName = prefix + fileName;
+            ensureBucketExists(effectiveBucket);
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(effectiveBucket)
+                    .object(fullObjectName)
                     .stream(stream, stream.available(), -1)
                     .contentType(contentType)
                     .build());
-            return this.getUrl(bucket, fileName);
+            return getUrl(effectiveBucket, fullObjectName);
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload file: " + fileName, e);
         }
@@ -48,7 +60,10 @@ public class MinioServiceImpl implements IStorageService {
     @Override
     public void deleteFile(String bucket, String fileName) {
         try {
-            this.minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+            String effectiveBucket = (bucket != null && !bucket.isEmpty()) ? bucket : this.bucket;
+            String prefix = determinePrefix(fileName);
+            String fullObjectName = prefix + fileName;
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(effectiveBucket).object(fullObjectName).build());
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete file: " + fileName, e);
         }
@@ -56,11 +71,7 @@ public class MinioServiceImpl implements IStorageService {
 
     public boolean makeBucket(String bucket) {
         try {
-            this.minioClient.makeBucket(
-                    MakeBucketArgs
-                            .builder()
-                            .bucket(bucket)
-                            .build());
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
             return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -69,38 +80,50 @@ public class MinioServiceImpl implements IStorageService {
     }
 
     private void ensureBucketExists(String bucketName) throws Exception {
-        boolean exists = this.minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!exists) {
-            this.minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
     }
 
     public String uploadToBucket(String bucketName, String objectName, InputStream stream, String contentType)
             throws Exception {
-        this.ensureBucketExists(bucketName);
-        this.minioClient.putObject(PutObjectArgs.builder()
+        String prefix = determinePrefix(objectName);
+        String fullObjectName = prefix + objectName;
+        ensureBucketExists(bucketName);
+        minioClient.putObject(PutObjectArgs.builder()
                 .bucket(bucketName)
-                .object(objectName)
+                .object(fullObjectName)
                 .stream(stream, stream.available(), -1)
                 .contentType(contentType)
                 .build());
-
-        return this.getUrl(bucketName, objectName);
+        return getUrl(bucketName, fullObjectName);
     }
 
     public void deleteObject(String bucketName, String objectName) throws Exception {
-        this.minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(objectName).build());
+        String prefix = determinePrefix(objectName);
+        String fullObjectName = prefix + objectName;
+        minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(fullObjectName).build());
     }
 
-    public String getUrl(String bucketName, String objectName)
-            throws Exception {
-        String url = this.minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+    public String getUrl(String bucketName, String objectName) throws Exception {
+        String prefix = determinePrefix(objectName);
+        String fullObjectName = prefix + objectName;
+        String url = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                 .method(Method.GET)
                 .bucket(bucketName)
-                .object(objectName)
+                .object(fullObjectName)
                 .expiry(7 * 24 * 60 * 60)
                 .build());
         return url;
     }
 
+    private String determinePrefix(String fileName) {
+        if (fileName.startsWith("post-") || fileName.contains("/posts/")) {
+            return postsPrefix;
+        } else if (fileName.startsWith("product-") || fileName.contains("/products/")) {
+            return productsPrefix;
+        }
+        return "";
+    }
 }

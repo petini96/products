@@ -36,4 +36,4 @@ application.log
 
 .env
 
-./uploads/*
+./uploads/
