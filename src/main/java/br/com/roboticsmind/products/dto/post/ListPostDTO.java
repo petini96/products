@@ -1,8 +1,16 @@
 package br.com.roboticsmind.products.dto.post;
 
-@lombok.Data
-@lombok.NoArgsConstructor
-public class ListPostDTO {
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+public class ListPostDTO implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String media;

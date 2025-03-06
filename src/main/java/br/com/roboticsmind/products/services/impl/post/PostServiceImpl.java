@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    @CacheEvict(value = "posts", allEntries = true)
     public Post createPost(CreatePostDTO dto, MultipartFile photo, MultipartFile photoMobile) throws PostSaveException {
         List<String> uploadedFiles = new ArrayList<>();
 
@@ -82,6 +85,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    @Cacheable(value = "posts", key = "#page + '-' + #size")
     public Page<ListPostDTO> listPosts(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<ListPostDTO> posts = postRepository.findAllPostDTO(pageRequest);
