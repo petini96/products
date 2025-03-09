@@ -35,5 +35,8 @@ build/
 application.log
 
 .env
+.env.local
+.env.prd
+!.env.example
 
 ./uploads/

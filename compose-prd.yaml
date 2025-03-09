@@ -1,0 +1,43 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-mycommerce
+    hostname: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes --loglevel debug --requirepass ${REDIS_PASSWORD}
+    networks:
+      - default
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-java
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+
+volumes:
+  redis:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
