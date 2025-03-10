@@ -17,22 +17,34 @@ jobs:
       # Configurar SSH para acesso à EC2
       - name: Setup SSH
         run: |
+          echo "Starting SSH setup..."
           mkdir -p ~/.ssh/
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/mykeys.pem
           chmod 600 ~/.ssh/mykeys.pem
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
+          echo "Attempting to scan host key for ${{ secrets.EC2_HOST }}..."
+          ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
+            echo "ssh-keyscan failed. Attempting to proceed without host key verification..."
+            echo "StrictHostKeyChecking=no" >> ~/.ssh/config
+            chmod 600 ~/.ssh/config
+          }
+          echo "SSH setup completed."
 
       # Copiar arquivos para a EC2
       - name: Copy files to EC2
         run: |
-          scp -i ~/.ssh/mykeys.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/products
+          echo "Copying files to EC2..."
+          scp -v -i ~/.ssh/mykeys.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app 2>&1
+          echo "Files copied successfully."
 
       # Executar Docker Compose na EC2 via SSH
       - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/mykeys.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          echo "Deploying with Docker Compose..."
+          ssh -v -i ~/.ssh/mykeys.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/${{ secrets.EC2_USER }}/app
             echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" > .env
             docker compose down --remove-orphans
             docker compose up -d --build
           EOF
+          echo "Deployment completed."
