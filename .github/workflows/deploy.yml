@@ -2,7 +2,8 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -13,72 +14,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Debugging step to check secrets
-      - name: Debug Secrets
-        run: |
-          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
-          echo "EC2_USER: ${{ secrets.EC2_USER }}"
-          echo "SSH_PRIVATE_KEY: [Content hidden for security]"
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then
-            echo "Error: EC2_HOST secret is not set or empty!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.EC2_USER }}" ]; then
-            echo "Error: EC2_USER secret is not set or empty!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "Error: SSH_PRIVATE_KEY secret is not set or empty!"
-            exit 1
-          fi
-
       # Configurar SSH para acesso à EC2
       - name: Setup SSH
         run: |
-          echo "Starting SSH setup..."
           mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > github-ec2.pem
-          chmod 600 github-ec2.pem
-          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
-          echo "Attempting to scan host key for ${{ secrets.EC2_HOST }}..."
-          ssh-keyscan -v -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
-            echo "ssh-keyscan failed. Attempting to proceed without host key verification..."
-            echo "StrictHostKeyChecking=no" >> ~/.ssh/config
-            chmod 600 ~/.ssh/config
-          }
-          echo "SSH setup completed."
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/mykeys.pem
+          chmod 600 ~/.ssh/mykeys.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      # Deploy para a EC2
-      - name: Deploy to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
+      # Copiar arquivos para a EC2
+      - name: Copy files to EC2
         run: |
-          echo "Copying files to EC2..."
-          scp -v -i github-ec2.pem -r . ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/app 2>&1
-          echo "Files copied successfully."
-          
-          echo "Deploying to EC2..."
-          ssh -v -i github-ec2.pem ${EC2_USER}@${EC2_HOST} '
-            echo "Current directory: $(pwd)"
-            echo "Listing home directory:"
-            ls -la ~
-          
-            REPO_DIR="$HOME/app"
-          
-            echo "Navigating to project directory: $REPO_DIR"
-            cd "$REPO_DIR"
-          
-            echo "Creating .env file with Redis password..."
+          scp -i ~/.ssh/mykeys.pem -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/products
+
+      # Executar Docker Compose na EC2 via SSH
+      - name: Deploy with Docker Compose
+        run: |
+          ssh -i ~/.ssh/mykeys.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/${{ secrets.EC2_USER }}/app
             echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" > .env
-          
-            echo "Stopping existing containers (if any)..."
             docker compose down --remove-orphans
-          
-            echo "Building and starting containers..."
             docker compose up -d --build
-          
-            echo "Checking container status..."
-            docker compose ps
-          '
-          echo "Deployment completed."
+          EOF
