@@ -14,7 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://100.67.15.184:5173",
-                        "http://localhost:5173"
+                        "http://localhost:5173",
+                        "https://importsjpe.roboticsmind.com.br"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
