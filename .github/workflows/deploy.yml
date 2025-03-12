@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
     steps:
       # Checkout do código do repositório
@@ -22,6 +25,45 @@ jobs:
           chmod 600 ~/.ssh/mykeys.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      # Validar secrets obrigatórias
+      - name: Validate required secrets
+        run: |
+          required_secrets=(
+            SERVER_ADDRESS SERVER_PORT MINIO_URL MINIO_ACCESS_KEY MINIO_SECRET_KEY
+            DB_DATASOURCE DB_USERNAME DB_PASSWORD STORAGE_BUCKET
+            AWS_ACCESS_KEY AWS_SECRET_KEY AWS_REGION AWS_S3_URL
+            REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_DB
+          )
+          for secret in "${required_secrets[@]}"; do
+            if [ -z "${{ secrets[$secret] }}" ]; then
+              echo "Erro: Secret $secret não está definida!"
+              exit 1
+            fi
+          done
+
+      # Gerar arquivo .env
+      - name: Generate .env file
+        run: |
+          cat << EOF > .env
+          SERVER_ADDRESS=${{ secrets.SERVER_ADDRESS }}
+          SERVER_PORT=${{ secrets.SERVER_PORT }}
+          MINIO_URL=${{ secrets.MINIO_URL }}
+          MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+          DB_DATASOURCE=${{ secrets.DB_DATASOURCE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}
+          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_S3_URL=${{ secrets.AWS_S3_URL }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_DB=${{ secrets.REDIS_DB }}
+          EOF
+
       # Copiar arquivos para a EC2
       - name: Copy files to EC2
         run: |
@@ -32,7 +74,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/mykeys.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/${{ secrets.EC2_USER }}/products
-            echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" > .env
             docker-compose -f compose-prd.yaml down --remove-orphans
             docker-compose -f compose-prd.yaml up -d --build
           EOF
