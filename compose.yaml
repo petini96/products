@@ -91,11 +91,29 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - default
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgresql
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - default
+
 volumes:
   s3_data:
   redis:
     driver: local
   postgresql:
+    driver: local
+  pgadmin:
     driver: local
 
 networks:
