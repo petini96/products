@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +24,9 @@ public class FileUploadHandler {
     private final String bucketName;
 
     @Autowired
-    public FileUploadHandler(@Qualifier("minioServiceImpl") IStorageService storageService, @Value("${storage.bucket:mycommerce-roboticsmind-prod-media}") String bucketName) {
+    public FileUploadHandler(
+            IStorageService storageService,
+            @Value("${storage.bucket:mycommerce-roboticsmind-prod-media}") String bucketName) {
         this.storageService = storageService;
         this.bucketName = bucketName;
     }

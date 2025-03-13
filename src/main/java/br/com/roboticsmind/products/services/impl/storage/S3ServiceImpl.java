@@ -2,11 +2,13 @@ package br.com.roboticsmind.products.services.impl.storage;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Duration;
 
-import br.com.roboticsmind.products.services.IStorageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import br.com.roboticsmind.products.services.IStorageService;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -20,9 +22,9 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import java.time.Duration;
 
 @Service
+@Profile("prod")
 public class S3ServiceImpl implements IStorageService {
 
     private final S3Client s3Client;

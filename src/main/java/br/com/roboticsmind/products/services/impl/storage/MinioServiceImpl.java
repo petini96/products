@@ -3,6 +3,7 @@ package br.com.roboticsmind.products.services.impl.storage;
 import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.roboticsmind.products.services.IStorageService;
@@ -15,6 +16,7 @@ import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 
 @Service
+@Profile("local")
 public class MinioServiceImpl implements IStorageService {
 
     private final MinioClient minioClient;
