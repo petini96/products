@@ -46,6 +46,9 @@ jobs:
           REDIS_PORT=${{ secrets.REDIS_PORT }}
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           REDIS_DB=${{ secrets.REDIS_DB }}
+          PROFILE_ACTIVE=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+          PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
           EOF
 
       # Copiar arquivos para a EC2
