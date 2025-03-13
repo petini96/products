@@ -9,11 +9,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import br.com.roboticsmind.products.services.IStorageService;
 
 @Service
+@Profile("dev")
 public class LocalFileSystemServiceImpl implements IStorageService {
 
     private final String basePath;

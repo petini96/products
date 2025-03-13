@@ -3,7 +3,6 @@ package br.com.roboticsmind.products.services.impl.product;
 import java.io.InputStream;
 import java.util.List;
 
-import br.com.roboticsmind.products.services.impl.storage.MinioServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +16,15 @@ import br.com.roboticsmind.products.models.ProductPhoto;
 import br.com.roboticsmind.products.repositories.ProductPhotoRepository;
 import br.com.roboticsmind.products.repositories.ProductRepository;
 import br.com.roboticsmind.products.services.IProductService;
+import br.com.roboticsmind.products.services.IStorageService;
+import br.com.roboticsmind.products.services.impl.storage.MinioServiceImpl;
 
 @Service
 public class ProductServiceImpl implements IProductService {
 
+    @Autowired
+    private IStorageService storageService;
+    
     @Autowired
     private ProductRepository productRepository;
 
@@ -52,7 +56,7 @@ public class ProductServiceImpl implements IProductService {
             for (MultipartFile photo : photos) {
                 String photoName = photo.getOriginalFilename();
                 try (InputStream photoStream = photo.getInputStream()) {
-                    this.minioService.uploadToBucket("products", photoName, photoStream, photo.getContentType());
+                    this.storageService.uploadFile("products", photoName, photoStream, photo.getContentType());
                 }
 
                 ProductPhoto productPhoto = new ProductPhoto();
@@ -66,6 +70,7 @@ public class ProductServiceImpl implements IProductService {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao salvar o produto e as imagens", e);
         }
+
     }
 
     @Override
