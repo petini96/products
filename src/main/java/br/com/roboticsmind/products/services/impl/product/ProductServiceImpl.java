@@ -17,7 +17,6 @@ import br.com.roboticsmind.products.repositories.ProductPhotoRepository;
 import br.com.roboticsmind.products.repositories.ProductRepository;
 import br.com.roboticsmind.products.services.IProductService;
 import br.com.roboticsmind.products.services.IStorageService;
-import br.com.roboticsmind.products.services.impl.storage.MinioServiceImpl;
 
 @Service
 public class ProductServiceImpl implements IProductService {
@@ -30,9 +29,6 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private ProductPhotoRepository productPhotoRepository;
-
-    @Autowired
-    private MinioServiceImpl minioService;
 
     @Override
     public Product createProduct(CreateFullProductInputDTO createFullProductInputDTO, List<MultipartFile> photos) {
