@@ -51,7 +51,7 @@ jobs:
       # Copiar arquivos para a EC2
       - name: Copy files to EC2
         run: |
-          scp -i ~/.ssh/mykeys.pem -r --exclude '.git' . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/products
+          rsync -avz --exclude '.git' -e "ssh -i ~/.ssh/mykeys.pem" . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/products
 
       # Executar Docker Compose na EC2 via SSH
       - name: Deploy with Docker Compose
