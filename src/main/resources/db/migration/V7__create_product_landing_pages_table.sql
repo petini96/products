@@ -1,0 +1,15 @@
+CREATE TABLE product_landing_page (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    product_id BIGINT NOT NULL UNIQUE,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    page_title VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'DRAFT', -- Ex: DRAFT, PUBLISHED
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_product
+        FOREIGN KEY(product_id)
+        REFERENCES product(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_product_landing_page_slug ON product_landing_page(slug);
