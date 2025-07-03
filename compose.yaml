@@ -114,12 +114,16 @@ services:
       - start-dev
       - --import-realm
     ports:
-      - 8080:8080
+      - 8082:8080
     volumes:
       - ./keycloak/:/opt/keycloak/data/import/
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgresql:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
       KC_HTTP_PORT: 8080
       KC_HOSTNAME_URL: http://localhost:8080
       KC_HOSTNAME_ADMIN_URL: http://localhost:8080
@@ -135,6 +139,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    depends_on:
+      - postgresql
+    networks:
+      - default
 volumes:
   s3_data:
   redis:
