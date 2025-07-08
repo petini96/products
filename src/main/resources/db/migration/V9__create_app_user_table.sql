@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
     keycloak_id VARCHAR(255) NOT NULL UNIQUE, -- <<< ESSA É A COLUNA ESSENCIAL
     name VARCHAR(255),

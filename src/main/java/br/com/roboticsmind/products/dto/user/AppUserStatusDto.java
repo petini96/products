@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserStatusDto {
+public class AppUserStatusDto {
     private Boolean isProfileComplete;
 }
