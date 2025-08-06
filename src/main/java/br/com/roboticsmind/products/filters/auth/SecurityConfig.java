@@ -2,6 +2,7 @@ package br.com.roboticsmind.products.filters.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,7 +29,11 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/users/me/status").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(
+                                "/api/users/me/status"
+                        ).permitAll()
                         .requestMatchers("/produto/cadastro/**").hasRole("ADMINISTRADOR")
                         .requestMatchers("/produto/**").hasAnyRole("ADMINISTRADOR", "GERENTE")
                         .requestMatchers("/public/**").permitAll()
