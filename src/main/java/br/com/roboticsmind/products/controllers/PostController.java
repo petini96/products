@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@SpringBootApplication
 @RequestMapping("/posts")
 public class PostController {
 

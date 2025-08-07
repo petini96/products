@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import java.util.List;
 
 @RestController
-@SpringBootApplication
 @RequestMapping("/products")
 public class ProductController {
 

@@ -6,9 +6,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -29,14 +30,18 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
+                        // Endpoints públicos que não exigem autenticação
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                        .requestMatchers(
-                                "/api/users/me/status"
-                        ).permitAll()
-                        .requestMatchers("/produto/cadastro/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/produto/**").hasAnyRole("ADMINISTRADOR", "GERENTE")
+                        .requestMatchers("/api/users/me/status").permitAll()
                         .requestMatchers("/public/**").permitAll()
+
+                        // Endpoints protegidos por papéis/autoridades específicos
+                        .requestMatchers("/produto/cadastro/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/produto/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EDITOR")
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
+                        // Qualquer outra requisição que não foi mencionada acima precisa de autenticação
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
@@ -50,21 +55,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:9000",
                 "http://localhost:5173",
                 "https://artesanaldoceria.roboticsmind.com.br"
         ));
-
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
         configuration.setAllowedHeaders(List.of("*"));
-
         configuration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
@@ -72,17 +71,34 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-            if (realmAccess == null || realmAccess.isEmpty()) {
-                return List.of();
+            // 1. Coleta papéis do Realm (globais) do token
+            final Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+            Stream<String> realmRoles = Stream.empty();
+            if (realmAccess != null && realmAccess.containsKey("roles")) {
+                final Collection<String> roles = (Collection<String>) realmAccess.get("roles");
+                realmRoles = roles.stream();
             }
-            Collection<String> roles = (Collection<String>) realmAccess.get("roles");
-            return roles.stream()
+
+            // 2. Coleta papéis do Client (específicos do app) do token
+            final Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
+            Stream<String> clientRoles = Stream.empty();
+            if (resourceAccess != null && resourceAccess.containsKey("quasar-app")) {
+                final Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("quasar-app");
+                if (clientAccess.containsKey("roles")) {
+                    final Collection<String> roles = (Collection<String>) clientAccess.get("roles");
+                    clientRoles = roles.stream();
+                }
+            }
+
+            // 3. Combina as duas listas, adiciona o prefixo "ROLE_" e cria as permissões (Authorities) para o Spring Security
+            return Stream.concat(realmRoles, clientRoles)
                     .map(roleName -> "ROLE_" + roleName.toUpperCase())
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
         });
+
         return converter;
     }
 }

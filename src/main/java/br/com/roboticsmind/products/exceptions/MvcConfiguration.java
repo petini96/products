@@ -9,7 +9,7 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import java.util.Properties;
 
-@Configuration
+//@Configuration
 @EnableWebMvc  // Optionally setup Spring MVC defaults (if you aren't using
 // Spring Boot & haven't specified @EnableWebMvc elsewhere)
 public class MvcConfiguration implements WebMvcConfigurer {
