@@ -6,7 +6,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,18 +29,22 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Endpoints públicos que não exigem autenticação
+                        // --- Endpoints Públicos (sem autenticação) ---
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers("/api/users/me/status").permitAll()
                         .requestMatchers("/public/**").permitAll()
 
-                        // Endpoints protegidos por papéis/autoridades específicos
+                        // --- Endpoints Protegidos por Papel ---
+                        .requestMatchers(HttpMethod.POST, "/api/categories").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/produto/cadastro/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/produto/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EDITOR")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
-                        // Qualquer outra requisição que não foi mencionada acima precisa de autenticação
+                        // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
@@ -73,7 +76,6 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            // 1. Coleta papéis do Realm (globais) do token
             final Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
             Stream<String> realmRoles = Stream.empty();
             if (realmAccess != null && realmAccess.containsKey("roles")) {
@@ -81,7 +83,6 @@ public class SecurityConfig {
                 realmRoles = roles.stream();
             }
 
-            // 2. Coleta papéis do Client (específicos do app) do token
             final Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
             Stream<String> clientRoles = Stream.empty();
             if (resourceAccess != null && resourceAccess.containsKey("quasar-app")) {
@@ -92,7 +93,6 @@ public class SecurityConfig {
                 }
             }
 
-            // 3. Combina as duas listas, adiciona o prefixo "ROLE_" e cria as permissões (Authorities) para o Spring Security
             return Stream.concat(realmRoles, clientRoles)
                     .map(roleName -> "ROLE_" + roleName.toUpperCase())
                     .map(SimpleGrantedAuthority::new)
